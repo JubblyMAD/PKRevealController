@@ -23,6 +23,9 @@
 #define DEFAULT_DISABLES_FRONT_VIEW_INTERACTION_VALUE YES
 #define DEFAULT_RECOGNIZES_PAN_ON_FRONT_VIEW_VALUE YES
 #define DEFAULT_RECOGNIZES_RESET_TAP_ON_FRONT_VIEW_VALUE YES
+#define DEFAULT_MAX_FADE_ALPHA 0.5f
+
+static void * kFrontViewContainerFrameChanged;
 
 @interface PKRevealController ()
 
@@ -48,6 +51,8 @@
 @property (nonatomic, assign, readwrite) CGPoint initialTouchLocation;
 @property (nonatomic, assign, readwrite) CGPoint previousTouchLocation;
 
+@property (nonatomic, strong, readwrite) UIView *fadeView;
+
 @end
 
 @implementation PKRevealController
@@ -60,6 +65,8 @@ NSString * const PKRevealControllerQuickSwipeToggleVelocityKey = @"PKRevealContr
 NSString * const PKRevealControllerDisablesFrontViewInteractionKey = @"PKRevealControllerDisablesFrontViewInteractionKey";
 NSString * const PKRevealControllerRecognizesPanningOnFrontViewKey = @"PKRevealControllerRecognizesPanningOnFrontViewKey";
 NSString * const PKRevealControllerRecognizesResetTapOnFrontViewKey = @"PKRevealControllerRecognizesResetTapOnFrontViewKey";
+
+NSString * const FrontContainerViewFrameKeyPath = @"frame";
 
 #pragma mark - Initialization
 
@@ -421,6 +428,7 @@ NSString * const PKRevealControllerRecognizesResetTapOnFrontViewKey = @"PKReveal
         {
             self.frontViewContainer = [[PKRevealControllerContainerView alloc] initForController:self.frontViewController shadow:YES];
             self.frontViewContainer.autoresizingMask = [self autoresizingMaskForFrontViewContainer];
+            [self addFadeViewToFrontViewContainer];
         }
         
         self.frontViewContainer.frame = [self frontViewFrameForCurrentState];
@@ -578,6 +586,78 @@ NSString * const PKRevealControllerRecognizesResetTapOnFrontViewKey = @"PKReveal
     self.revealResetTapGestureRecognizer = [[UITapGestureRecognizer alloc] initWithTarget:self
                                                                                    action:tapRecognitionCallback];
     self.revealResetTapGestureRecognizer.delegate = self;
+}
+
+#pragma mark Fading
+
+- (UIView *)fadeView
+{
+    if (_fadeView == nil)
+    {
+        _fadeView = [[UIView alloc] initWithFrame:self.frontViewContainer.bounds];
+        _fadeView.backgroundColor = [UIColor blackColor];
+        _fadeView.alpha = 0.0f;
+        _fadeView.autoresizingMask = [self autoresizingMaskForFadeView];
+    }
+    
+    return _fadeView;
+}
+
+- (void)addFadeViewToFrontViewContainer
+{
+    [self.frontViewContainer addSubview:self.fadeView];
+    
+    [self.frontViewContainer addObserver:self forKeyPath:FrontContainerViewFrameKeyPath options:kNilOptions context:&kFrontViewContainerFrameChanged];
+}
+
+- (void)removeFadeViewFromFrontViewContainer
+{
+    [self.frontViewContainer removeObserver:self forKeyPath:FrontContainerViewFrameKeyPath];
+    [self.fadeView removeFromSuperview];
+}
+
+- (void)observeValueForKeyPath:(NSString *)keyPath ofObject:(id)object change:(NSDictionary *)change context:(void *)context
+{
+    if([keyPath isEqualToString:FrontContainerViewFrameKeyPath] && context == &kFrontViewContainerFrameChanged)
+    {
+        [self updateFading];
+    }
+    else
+    {
+        [super observeValueForKeyPath:keyPath ofObject:object change:change context:context];
+    }
+}
+
+- (void)updateFading
+{
+    CGRect frame = self.frontViewContainer.frame;
+    CGRect frameForFrontViewCenter = [self frontViewFrameForCenter];
+    CGFloat translation = frame.origin.x - frameForFrontViewCenter.origin.x;
+    BOOL isPositiveTranslation = (translation > CGRectGetMinX(frameForFrontViewCenter));
+    CGFloat absTranslation = fabsf(translation);
+    
+    if (isPositiveTranslation)
+    {
+        if (absTranslation > [self leftViewMinWidth])
+        {
+            self.fadeView.alpha = DEFAULT_MAX_FADE_ALPHA;
+        }
+        else
+        {
+            self.fadeView.alpha = fabsf(translation) / self.leftViewWidthRange.location * DEFAULT_MAX_FADE_ALPHA;
+        }
+    }
+    else
+    {
+        if (absTranslation > [self rightViewMinWidth])
+        {
+            self.fadeView.alpha = DEFAULT_MAX_FADE_ALPHA;
+        }
+        else
+        {
+            self.fadeView.alpha = fabsf(translation) / self.rightViewWidthRange.location * DEFAULT_MAX_FADE_ALPHA;
+        }
+    }
 }
 
 #pragma mark - Options
@@ -1367,6 +1447,11 @@ NSString * const PKRevealControllerRecognizesResetTapOnFrontViewKey = @"PKReveal
     return (UIViewAutoresizingFlexibleHeight | UIViewAutoresizingFlexibleWidth);
 }
 
+- (UIViewAutoresizing)autoresizingMaskForFadeView
+{
+    return (UIViewAutoresizingFlexibleHeight | UIViewAutoresizingFlexibleWidth);
+}
+
 - (UIViewAutoresizing)autoresizingMaskForLeftViewContainer
 {
     return (UIViewAutoresizingFlexibleHeight | UIViewAutoresizingFlexibleRightMargin);
@@ -1448,6 +1533,8 @@ NSString * const PKRevealControllerRecognizesResetTapOnFrontViewKey = @"PKReveal
 
 - (void)dealloc
 {
+    [self removeFadeViewFromFrontViewContainer];
+
     [self.frontViewController removeFromParentViewController];
     [self.frontViewController.view removeFromSuperview];
     self.frontViewContainer = nil;
