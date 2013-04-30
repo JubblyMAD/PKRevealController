@@ -12,6 +12,7 @@
 
 #import "PKRevealController.h"
 #import "PKRevealControllerContainerView.h"
+#import "JJGripButton.h"
 
 #define DEFAULT_ANIMATION_DURATION_VALUE 0.185
 #define DEFAULT_ANIMATION_CURVE_VALUE UIViewAnimationCurveLinear
@@ -23,7 +24,7 @@
 #define DEFAULT_DISABLES_FRONT_VIEW_INTERACTION_VALUE YES
 #define DEFAULT_RECOGNIZES_PAN_ON_FRONT_VIEW_VALUE YES
 #define DEFAULT_RECOGNIZES_RESET_TAP_ON_FRONT_VIEW_VALUE YES
-#define DEFAULT_MAX_FADE_ALPHA 0.5f
+#define DEFAULT_MAX_FADE_ALPHA 0.3f
 
 static void * kFrontViewContainerFrameChanged;
 
@@ -52,6 +53,7 @@ static void * kFrontViewContainerFrameChanged;
 @property (nonatomic, assign, readwrite) CGPoint previousTouchLocation;
 
 @property (nonatomic, strong, readwrite) UIView *fadeView;
+@property (nonatomic, strong, readwrite) JJGripButton *gripButton;
 
 @end
 
@@ -428,6 +430,7 @@ NSString * const FrontContainerViewFrameKeyPath = @"frame";
         {
             self.frontViewContainer = [[PKRevealControllerContainerView alloc] initForController:self.frontViewController shadow:YES];
             self.frontViewContainer.autoresizingMask = [self autoresizingMaskForFrontViewContainer];
+			[self addGripButtonToFrontViewContainer];
             [self addFadeViewToFrontViewContainer];
         }
         
@@ -587,6 +590,55 @@ NSString * const FrontContainerViewFrameKeyPath = @"frame";
                                                                                    action:tapRecognitionCallback];
     self.revealResetTapGestureRecognizer.delegate = self;
 }
+
+#pragma mark Grip
+
+- (JJGripButton *)gripButton
+{
+	if (_gripButton == nil)
+	{
+		_gripButton = [[JJGripButton alloc] initWithImage:self.gripImage];
+		[_gripButton addTarget:self action:@selector(gripTapped)];
+		
+		self.gripButton.frame = CGRectMake(0, (self.frontViewContainer.bounds.size.width/2 - _gripButton.bounds.size.height), _gripButton.bounds.size.width, _gripButton.bounds.size.height);
+	}
+	
+	return _gripButton;
+}
+
+- (void)addGripButtonToFrontViewContainer
+{
+	[self.frontViewContainer addSubview:self.gripButton];
+}
+
+- (void)removeGripButtonFromFrontViewContainer
+{
+	[self.gripButton removeFromSuperview];
+}
+
+- (void)gripTapped
+{
+	if (self.focusedController == self.leftViewController)
+	{
+		[UIView animateWithDuration:0.0f animations:^(void) {self.gripButton.alpha = 0.0f;}];
+		[self showViewController:self.frontViewController
+										 animated:YES
+									   completion:^(BOOL finished){
+										   [UIView animateWithDuration:0.2f animations:^(void) {self.gripButton.alpha = self.gripButton.defaultAlpha;}];
+									   }];
+		
+	}
+	else
+	{
+		[UIView animateWithDuration:0.0f animations:^(void) {self.gripButton.alpha = 0.0f;}];
+		[self showViewController:self.leftViewController
+										 animated:YES
+									   completion:^(BOOL finished){
+										   [UIView animateWithDuration:0.2f animations:^(void) {self.gripButton.alpha = self.gripButton.defaultAlpha;}];
+									   }];
+	}
+}
+
 
 #pragma mark Fading
 
