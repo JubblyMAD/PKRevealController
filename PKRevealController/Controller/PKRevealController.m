@@ -187,6 +187,8 @@ NSString * const FrontContainerViewFrameKeyPath = @"frame";
     _frontViewController.revealController = self;
     _leftViewController.revealController = self;
     _rightViewController.revealController = self;
+	
+	_enabled = YES;
 }
 
 #pragma mark - API
@@ -618,24 +620,27 @@ NSString * const FrontContainerViewFrameKeyPath = @"frame";
 
 - (void)gripTapped
 {
-	if (self.focusedController == self.leftViewController)
+	if (self.enabled)
 	{
-		[UIView animateWithDuration:0.0f animations:^(void) {self.gripButton.alpha = 0.0f;}];
-		[self showViewController:self.frontViewController
-										 animated:YES
-									   completion:^(BOOL finished){
-										   [UIView animateWithDuration:0.2f animations:^(void) {self.gripButton.alpha = self.gripButton.defaultAlpha;}];
-									   }];
-		
-	}
-	else
-	{
-		[UIView animateWithDuration:0.0f animations:^(void) {self.gripButton.alpha = 0.0f;}];
-		[self showViewController:self.leftViewController
-										 animated:YES
-									   completion:^(BOOL finished){
-										   [UIView animateWithDuration:0.2f animations:^(void) {self.gripButton.alpha = self.gripButton.defaultAlpha;}];
-									   }];
+		if (self.focusedController == self.leftViewController)
+		{
+			[UIView animateWithDuration:0.0f animations:^(void) {self.gripButton.alpha = 0.0f;}];
+			[self showViewController:self.frontViewController
+							animated:YES
+						  completion:^(BOOL finished){
+							  [UIView animateWithDuration:0.2f animations:^(void) {self.gripButton.alpha = self.gripButton.defaultAlpha;}];
+						  }];
+			
+		}
+		else
+		{
+			[UIView animateWithDuration:0.0f animations:^(void) {self.gripButton.alpha = 0.0f;}];
+			[self showViewController:self.leftViewController
+							animated:YES
+						  completion:^(BOOL finished){
+							  [UIView animateWithDuration:0.2f animations:^(void) {self.gripButton.alpha = self.gripButton.defaultAlpha;}];
+						  }];
+		}
 	}
 }
 
@@ -711,6 +716,15 @@ NSString * const FrontContainerViewFrameKeyPath = @"frame";
         }
     }
 }
+
+#pragma mark - Property accessors
+- (void)setEnabled:(BOOL)enabled
+{
+	_enabled = enabled;
+	
+	self.gripButton.hidden = !_enabled;
+}
+
 
 #pragma mark - Options
 
@@ -909,33 +923,39 @@ NSString * const FrontContainerViewFrameKeyPath = @"frame";
 
 - (void)didRecognizeTapWithGestureRecognizer:(UITapGestureRecognizer *)recognizer
 {
-    [self showViewController:self.frontViewController];
+    if (self.enabled)
+	{
+		[self showViewController:self.frontViewController];
+	}
 }
 
 - (void)didRecognizePanWithGestureRecognizer:(UIPanGestureRecognizer *)recognizer
 {
-    switch (recognizer.state)
-    {
-        case UIGestureRecognizerStateBegan:
-            [self handleGestureBeganWithRecognizer:recognizer];
-            break;
-            
-        case UIGestureRecognizerStateChanged:
-            [self handleGestureChangedWithRecognizer:recognizer];
-            break;
-            
-        case UIGestureRecognizerStateEnded:
-        case UIGestureRecognizerStateCancelled:
-        case UIGestureRecognizerStateFailed:
-            [self handleGestureEndedWithRecognizer:recognizer];
-            break;
-                        
-        default:
-        {
-            self.revealPanGestureRecognizer.enabled = YES;
-        }
-            break;
-    }
+    if (self.enabled)
+	{
+		switch (recognizer.state)
+		{
+			case UIGestureRecognizerStateBegan:
+				[self handleGestureBeganWithRecognizer:recognizer];
+				break;
+				
+			case UIGestureRecognizerStateChanged:
+				[self handleGestureChangedWithRecognizer:recognizer];
+				break;
+				
+			case UIGestureRecognizerStateEnded:
+			case UIGestureRecognizerStateCancelled:
+			case UIGestureRecognizerStateFailed:
+				[self handleGestureEndedWithRecognizer:recognizer];
+				break;
+							
+			default:
+			{
+				self.revealPanGestureRecognizer.enabled = YES;
+			}
+				break;
+		}
+	}
 }
 
 #pragma mark - Gesture Handling
