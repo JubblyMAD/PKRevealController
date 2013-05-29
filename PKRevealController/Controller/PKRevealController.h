@@ -107,12 +107,20 @@ extern NSString * const PKRevealControllerRecognizesResetTapOnFrontViewKey;
 typedef void(^PKDefaultCompletionHandler)(BOOL finished);
 typedef void(^PKDefaultErrorHandler)(NSError *error);
 
+@protocol PKRevealControllerDelegate <NSObject>
+
+- (void)revealControllerDidShowController:(UIViewController *)viewController;
+
+@end
+
 @interface PKRevealController : UIViewController <UIGestureRecognizerDelegate>
 
 #pragma mark - Properties
 @property (nonatomic, strong, readonly) UIViewController *frontViewController;
 @property (nonatomic, strong, readonly) UIViewController *leftViewController;
 @property (nonatomic, strong, readonly) UIViewController *rightViewController;
+
+@property (nonatomic, weak) id<PKRevealControllerDelegate> delegate;
 
 @property (nonatomic, strong, readonly) UIPanGestureRecognizer *revealPanGestureRecognizer;
 @property (nonatomic, strong, readonly) UITapGestureRecognizer *revealResetTapGestureRecognizer;

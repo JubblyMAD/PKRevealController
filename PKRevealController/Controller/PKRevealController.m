@@ -223,6 +223,11 @@ NSString * const FrontContainerViewFrameKeyPath = @"frame";
     {
         [self showFrontViewControllerAnimated:animated completion:completion];
     }
+	
+	if ([self.delegate respondsToSelector:@selector(revealControllerDidShowController:)])
+	{
+		[self.delegate performSelector:@selector(revealControllerDidShowController:) withObject:controller];
+	}
 }
 
 

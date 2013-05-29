@@ -1,6 +1,6 @@
 Pod::Spec.new do |s|
 	s.name = 'PKRevealController'
-	s.version = '1.0b2.3'
+	s.version = '1.0b2.4'
 	s.platform = :ios, '5.0'
 	s.license = 'MIT'
 	s.summary = 'View controller container, enabling you to present multiple controllers on top of one another. '
