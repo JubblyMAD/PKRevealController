@@ -7,6 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		EF739CE017DD7FB500C7395B /* JJGripButton.m in Sources */ = {isa = PBXBuildFile; fileRef = EF739CDF17DD7FB500C7395B /* JJGripButton.m */; };
 		F932019016B85E56001C2B3E /* Default-568h@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = F932018F16B85E56001C2B3E /* Default-568h@2x.png */; };
 		F94D66F116AE1C1200F0DAE3 /* InfoPlist.strings in Resources */ = {isa = PBXBuildFile; fileRef = F94D66E916AE1C1200F0DAE3 /* InfoPlist.strings */; };
 		F94D66F216AE1C1200F0DAE3 /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = F94D66EB16AE1C1200F0DAE3 /* main.m */; };
@@ -32,6 +33,8 @@
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
+		EF739CDE17DD7FB500C7395B /* JJGripButton.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = JJGripButton.h; path = Controller/JJGripButton.h; sourceTree = "<group>"; };
+		EF739CDF17DD7FB500C7395B /* JJGripButton.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = JJGripButton.m; path = Controller/JJGripButton.m; sourceTree = "<group>"; };
 		F932018F16B85E56001C2B3E /* Default-568h@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "Default-568h@2x.png"; sourceTree = SOURCE_ROOT; };
 		F94D66EA16AE1C1200F0DAE3 /* en */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = en; path = InfoPlist.strings; sourceTree = "<group>"; };
 		F94D66EB16AE1C1200F0DAE3 /* main.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = main.m; path = "Supporting Files/main.m"; sourceTree = "<group>"; };
@@ -102,6 +105,8 @@
 		F9DD514216A972BA00F392F1 /* Controller */ = {
 			isa = PBXGroup;
 			children = (
+				EF739CDE17DD7FB500C7395B /* JJGripButton.h */,
+				EF739CDF17DD7FB500C7395B /* JJGripButton.m */,
 				F94D66F416AE1C5800F0DAE3 /* PKRevealController.h */,
 				F94D66F516AE1C5800F0DAE3 /* PKRevealController.m */,
 				F94D66F716AE1C6200F0DAE3 /* PKRevealControllerContainerView.h */,
@@ -250,6 +255,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				EF739CE017DD7FB500C7395B /* JJGripButton.m in Sources */,
 				F9E6F1AE1688B76F00C7CF25 /* PKAppDelegate.m in Sources */,
 				F94D66F216AE1C1200F0DAE3 /* main.m in Sources */,
 				F94D66F616AE1C5800F0DAE3 /* PKRevealController.m in Sources */,
